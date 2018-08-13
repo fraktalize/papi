@@ -9,11 +9,24 @@ class Core {
   static init() {
     const core = new Core();
 
+    core.adminHead();
     core.addCurrentClassToMenuItem();
     core.binds();
     core.pageTypeSwitcher();
     core.prepareBoxes();
     core.setSelectedMenuItem();
+  }
+
+  /**
+   * Handle admin head script templates.
+   */
+  adminHead() {
+    var tmpl = window.wp.template('papi-hidden-fields');
+    if ($('body.gutenberg-editor-page').length) {
+      $('form.metabox-base-form').append(tmpl());
+    } else {
+      $('form#post').append(tmpl());
+    }
   }
 
   /**

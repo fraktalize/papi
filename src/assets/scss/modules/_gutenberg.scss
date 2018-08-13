@@ -1,0 +1,9 @@
+body.gutenberg-editor-page {
+  .edit-post-layout__metaboxes:not(:empty) .edit-post-meta-boxes-area {
+    margin: 0;
+  }
+
+  .edit-post-layout__metaboxes:not(:empty) {
+    padding: 0;
+  }
+}

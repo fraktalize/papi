@@ -21,8 +21,12 @@ class Editor_Page_Type extends Papi_Page_Type {
 	public function register() {
 		$this->box( 'Content', [
 			papi_property( [
-				'type'      => 'editor',
-				'title'     => 'Editor'
+				'type'  => 'editor',
+				'title' => 'Editor'
+			] ),
+			papi_property( [
+				'type'  => 'string',
+				'title' => 'Name'
 			] )
 		] );
 	}

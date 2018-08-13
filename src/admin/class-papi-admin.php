@@ -72,6 +72,15 @@ final class Papi_Admin {
 	}
 
 	/**
+	 * Output admin head JavaScript.
+	 */
+	public function admin_head() {
+		echo '<script type="text/template" id="tmpl-papi-hidden-fields">';
+		$this->edit_form_after_title();
+		echo '</script>';
+	}
+
+	/**
 	 * Add custom body class when it's a page type.
 	 *
 	 * @param  string $classes
@@ -194,11 +203,12 @@ final class Papi_Admin {
 	 */
 	protected function setup_actions() {
 		add_action( 'admin_init', [$this, 'admin_init'] );
-		add_action( 'edit_form_after_title', [$this, 'edit_form_after_title'] );
 
 		if ( $taxonomy = papi_get_taxonomy() ) {
 			add_action( $taxonomy . '_add_form', [$this, 'edit_form_after_title'] );
 			add_action( $taxonomy . '_edit_form', [$this, 'edit_form_after_title'] );
+		} else {
+			add_action( 'admin_head', [$this, 'admin_head'] );
 		}
 	}
 
