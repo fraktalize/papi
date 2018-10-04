@@ -2,11 +2,11 @@ import $ from 'jquery';
 import select2Options from 'components/select2';
 
 /**
- * Property Post.
+ * Property Module.
  *
  * Using Select2.
  */
-class Post {
+class Module {
 
   /**
    * The option template to compile.
@@ -14,7 +14,7 @@ class Post {
    * @return {function}
    */
   get optionTemplate() {
-    return window.wp.template('papi-property-post-option');
+    return window.wp.template('papi-property-module-option');
   }
 
   /**
@@ -23,14 +23,14 @@ class Post {
    * @return {function}
    */
   get optionPlaceholderTemplate() {
-    return window.wp.template('papi-property-post-option-placeholder');
+    return window.wp.template('papi-property-module-option-placeholder');
   }
 
   /**
-   * Initialize Property Post.
+   * Initialize Property Module.
    */
   static init() {
-    new Post().binds();
+    new Module().binds();
   }
 
   /**
@@ -38,13 +38,13 @@ class Post {
    */
   binds() {
     $(document).on('papi/property/repeater/added', '[data-property="post"]', this.update.bind(this));
-    $(document).on('change', '.papi-property-post-left', this.change.bind(this));
+    $(document).on('change', '.papi-property-module-right', this.change.bind(this));
     $(document).on('papi/iframe/submit', this.iframeSubmit.bind(this));
   }
 
   /**
-   * Change post dropdown when selecting
-   * a different post type.
+   * Change template dropdown when selecting
+   * a different module.
    *
    * @param {object} e
    */
@@ -53,47 +53,58 @@ class Post {
 
     const self = this;
     const $this = $(e.currentTarget);
-    const query = $this.data('post-query').length
-      ? $this.data('post-query')
-      : {};
 
-    query.post_type = $this.val();
-
+    const entryTypeId = $this.find('option:selected').data('entry-type');
     const params  = {
-      'action': 'get_posts',
-      'fields': ['ID', 'post_title', 'post_type'],
-      'query': query
+      'action': 'get_entry_type',
+      'entry_type': entryTypeId
     };
-    const $prop   = $this.closest('.papi-property-post');
-    const $select = $prop.find('.papi-property-post-right');
+    const $prop   = $this.closest('.papi-property-module');
+    const $select = $prop.find('.papi-property-module-left');
 
-    $('[for="' + $select.attr('id') + '"]')
-      .parent()
-      .find('label')
-      .text($this.data('select-item').replace('%s', $this.find('option:selected').text()));
-
-    $.get(papi.ajaxUrl + '?' + $.param(params), function(posts) {
+    $.get(papi.ajaxUrl + '?' + $.param(params), function(entryType) {
       $select.empty();
 
-      if ($select.data('placeholder').length && posts.length) {
+      if ($select.data('placeholder') && posts.length) {
         const optionPlaceholderTemplate = self.optionPlaceholderTemplate;
         const template1 = window._.template($.trim(optionPlaceholderTemplate()));
 
-        $select.append(template1({
-          type: posts[0].post_type
-        }));
+        $select.append(template1());
       }
 
       const optionTemplate = self.optionTemplate;
       const template2 = window._.template($.trim(optionTemplate()));
 
-      $.each(posts, function(index, post) {
+      for (var key in entryType.template) {
+        const template = entryType.template[key];
+        let item = {};
+
+        // Convert string value to item object.
+        if (typeof template === 'string') {
+          item = {
+            'label': template,
+            'template': template,
+            'default': false
+          };
+        }
+
+        // Check if template is a object
+        // or bail.
+        if ($.isPlainObject(template)) {
+          item = template;
+        } else {
+          continue;
+        }
+
         $select.append(template2({
-          id: post.ID,
-          title: post.post_title,
-          type: post.post_type
+          title: item.label,
+          value: key
         }));
-      });
+
+        if (item.default) {
+          $select.val(key);
+        }
+      }
 
       if ($select.hasClass('papi-component-select2') && 'select2' in $.fn) {
         $select.trigger('change');
@@ -157,4 +168,4 @@ class Post {
   }
 }
 
-export default Post;
+export default Module;
